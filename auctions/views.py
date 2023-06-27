@@ -8,7 +8,10 @@ from .models import *
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    activeListings = Listing.objects.filter(isActive=True)
+    return render(request, "auctions/index.html", {
+        "listings": activeListings
+    })
 
 def create_listing(request):
     if request.method == "GET":
@@ -28,7 +31,7 @@ def create_listing(request):
         currentUser = request.user
 
         #get data about category
-        categoryData = Category.objects.get(categoryName= category)
+        categoryData = Category.objects.get(categoryName=category)
 
         #create new object
         new_listing = Listing(
@@ -52,18 +55,18 @@ def login_view(request):
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username, password=password) #authenticate will return either user or None depedning if the user is registered
 
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("index"))
+            return HttpResponseRedirect(reverse("index")) #cannot return a render because the URL path will remain the same while the content on the screen changes
         else:
             return render(request, "auctions/login.html", {
                 "message": "Invalid username and/or password."
             })
     else:
-        return render(request, "auctions/login.html")
+        return render(request, "auctions/login.html") #value of message = None
 
 
 def logout_view(request):
@@ -86,7 +89,7 @@ def register(request):
 
         # Attempt to create new user
         try:
-            user = User.objects.create_user(username, email, password)
+            user = User.objects.create_user(username, email, password) #username, email, password are the default inputs for creating a user
             user.save()
         except IntegrityError:
             return render(request, "auctions/register.html", {
