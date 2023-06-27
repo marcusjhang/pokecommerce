@@ -27,13 +27,16 @@ def create_listing(request):
         #get user
         currentUser = request.user
 
+        #get data about category
+        categoryData = Category.objects.get(categoryName= category)
+
         #create new object
         new_listing = Listing(
             title=title,
             description=description,
             imageUrl = imageUrl,
             price = float(price),
-            category=category,
+            category=categoryData,
             owner=currentUser
         )
 
