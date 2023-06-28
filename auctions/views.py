@@ -9,8 +9,10 @@ from .models import *
 
 def index(request):
     activeListings = Listing.objects.filter(isActive=True)
+    allCategories = Category.objects.all()
     return render(request, "auctions/index.html", {
-        "listings": activeListings
+        "listings": activeListings,
+        "categories": allCategories
     })
 
 def create_listing(request):
@@ -99,3 +101,19 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+def display_category(request):
+    if request.method == "POST":
+        category = Category.objects.get(categoryName=request.POST["category"])
+        activeListings = Listing.objects.filter(isActive=True, category=category)
+        allCategories = Category.objects.all()
+        return render(request, "auctions/index.html", {
+            "listings": activeListings,
+            "categories": allCategories
+        })
+    
+def listing(request, id):
+    listingData = Listing.objects.get(pk=id)
+    return render(request, "auctions/listing.html", {
+        "listing": listingData
+    })
