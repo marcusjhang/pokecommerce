@@ -1,8 +1,28 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+    <div class="container">
+        {% if message %}
+            {% if updated %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+            {% else %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
     <div class="row">
         {% if user.is_authenticated %}
+            {% if isOwner %}
+                <form action="{% url 'closeAuction' id=listing.id %}" method="POST" class="mx-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Close Auction</button>
+                </form>
+            {% endif %}
             {% if isListingInWatchlist %}
                 <form action="{% url 'removeWatchlist' id=listing.id %}" method="POST">
                     {% csrf_token %}
@@ -21,6 +41,17 @@
     <img src="{{ listing.imageUrl }}" alt="{{ listing.title}}" height="400px">
     <p>{{ listing.description }}</p>
     <p>Owner: {{ listing.owner }}</p>
-    <h4>${{ listing.price }}</h4>
+    <h6>Initial price: ${{ listing.price.bid }}</h6>
+
+    {% if user.is_authenticated %}
+        <form action="{% url 'addBid' id=listing.id %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="price">Add Bid</label>
+                <input type="number" min="0" name="newBid" placeholder="Add New Bid">
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </form> 
+    {% endif %}
 
 {% endblock %}
